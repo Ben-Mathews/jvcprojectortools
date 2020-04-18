@@ -3,11 +3,24 @@
 Scripts to send commands 2015 model JVC D-ILA Projectors.
 
 ## Prerequisites
-- Python [3.6](https://www.python.org/downloads/release/python-360/) or [later](https://www.python.org/downloads/) installed
+- Python [3.6](https://www.python.org/downloads/release/python-360/) or [later](https://www.python.org/downloads/) installed (most functionality except the gamma functionality works with Python 2.7, provided the `enum34` package is installed)
 - Network connected JVC projector
 
 ## Quick start
-Run menu.py, enter "1" for "Setup HDR" and follow the on-screen instructions.
+### Running from menu
+To run using the menu interface, run menu.py, enter "1" for "Setup HDR" and follow the on-screen instructions.
+
+### Using as a library
+Elements of the `jvcprojectortools` project can also be reused by other Python code.  The `host_port_str` parameter must be specified when instantiating a JVCCommand object.  A simple example of this is shown below:
+```python
+from jvcprojectortools.jvc_command import(JVCCommand, Command)
+host_port_str = '192.168.9.2:20554'
+jvc_projector = JVCCommand(host_port_str=host_port_str)
+jvc_projector.__enter__()
+power = jvc_projector.get(Command.Power)
+print(power)
+jvc_projector.conn.conn.close()
+```
 
 ## Main Menu
 The menu lists the commands you can enter on the left and a description on the right. Some commands accepts optional arguments. These arguments are listed as [argument] in the description. Multiple commands can be run if separated by ";"
@@ -90,7 +103,7 @@ Set the input brightness where the curve will stop following the eotf curve and 
 Set to a value between 0 and 1 to shape the soft-clip curve. The angle of the curve at the end point can move from horizontal (1) to pointing at the soft-clip start point (0). The curve a the start of the soft-clip start point always points in the same direction as the eotf curve at that point, but as the end-slope value gets smaller this part of the curve gets less and less weight.
 
 ### Set soft clip curve type
-Selects between a cubic Bézier curve (0) and quadratic Bézier curve (1). 0 gives more weight to the angle at the start and end points, and will deviate less from the eotf curve at the start.
+Selects between a cubic Bï¿½zier curve (0) and quadratic Bï¿½zier curve (1). 0 gives more weight to the angle at the start and end points, and will deviate less from the eotf curve at the start.
 
 ### Set soft clip gamma
 Selects the gamma to draw the soft clip curve in.
