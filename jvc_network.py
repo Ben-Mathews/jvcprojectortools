@@ -23,11 +23,12 @@ class Timeout(Exception):
 
 class JVCNetwork:
     """JVC projector network connection"""
-    def __init__(self, print_all=False, print_recv=False, print_send=False):
+    def __init__(self, host_port_str=None, print_all=False, print_recv=False, print_send=False):
         self.print_recv = print_recv or print_all
         self.print_send = print_send or print_all
-        self.socket = None
+        self.host_port_str = host_port_str
         self.host_port = None
+        self.socket = None
 
     def connect(self):
         """Open network connection to projector and perform handshake"""
@@ -53,20 +54,24 @@ class JVCNetwork:
         save_conf = False
 
         while True:
-            if not conf.get('host', None):
-                print('\nIf you have configured a hostname for your projector (usually in your\n'
-                      'internet gateway) enter that hostname here.\n'
-                      'If you don'"'"'t have a hostname, you can use the "IP Address" displayed \n'
-                      'in the "Network" menu (found under the "Function" main menu) on the\n'
-                      'projector. If "DHCP Client" is "Off" change it to "On" then select "Set"\n'
-                      'to have the "IP Address" information filled out.\n')
-                conf['host'] = input('Enter hostname or ip address: ')
-                save_conf = True
+            if isinstance(self.host_port_str, str):
+                conf = dict()
+                conf['host'] = self.host_port_str.split(':')[0]
+                conf['port'] = int(self.host_port_str.split(':')[1])
+            else:
+                if not conf.get('host', None):
+                    print('\nIf you have configured a hostname for your projector (usually in your\n'
+                          'internet gateway) enter that hostname here.\n'
+                          'If you don'"'"'t have a hostname, you can use the "IP Address" displayed \n'
+                          'in the "Network" menu (found under the "Function" main menu) on the\n'
+                          'projector. If "DHCP Client" is "Off" change it to "On" then select "Set"\n'
+                          'to have the "IP Address" information filled out.\n')
+                    conf['host'] = input('Enter hostname or ip address: ')
+                    save_conf = True
 
-            if not conf.get('port', None):
-                conf['port'] = 20554
-                save_conf = True
-
+                if not conf.get('port', None):
+                    conf['port'] = 20554
+                    save_conf = True
             try:
                 self.host_port = (conf['host'], conf['port'])
                 self.connect()
